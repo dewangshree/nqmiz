@@ -121,13 +121,17 @@ The first API request downloads about 2 MB from Elexon (around 2 s) and caches i
 docker compose up --build
 ```
 
-- UI: http://localhost:8080. nginx serves the built app and proxies `/api` to the backend container.
+- UI: http://localhost:3000. nginx serves the built app and proxies `/api` to the backend container.
 - API: http://localhost:8000/api/health
+- Ports can be changed if they're taken: `FRONTEND_PORT=3001 BACKEND_PORT=8001 docker compose up --build`
 
-**What has been verified:**
-- **Backend image:** `backend/Dockerfile` is what Render builds and runs in production, and the deployed API passes its health check.
-- **Frontend image, build stage only:** `npm ci` + `npm run build` from a clean checkout succeeds and produces a bundle that calls same-origin `/api`.
-- **Not yet verified locally:** the nginx serving stage and the full `docker compose` stack. The local Docker VM could not start because the development machine ran out of disk space.
+**Verified** (Docker Desktop 4.96.3, Compose v5.6.1, Intel Mac):
+- Both images build: backend 235 MB (`python:3.12-slim`, runs as a non-root user), frontend 75 MB (`nginx:1.27-alpine`).
+- The backend container reports healthy, and the frontend starts once the backend is healthy.
+- nginx serves every client-side route and proxies `/api` to the backend.
+- Metrics returned through the proxy match the local and deployed results exactly.
+- A browser run against http://localhost:3000 passed: all five pages, the filters, charts, tooltips and table view, with every API request returning 200 and no console errors.
+- The same `backend/Dockerfile` is what Render builds and runs in production.
 
 ## Tests and checks
 

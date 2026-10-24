@@ -1,15 +1,16 @@
-# Local production-like stack: http://localhost:8080 (UI) -> nginx -> FastAPI
+# Local production-like stack: http://localhost:3000 (UI) -> nginx -> FastAPI
+# Override host ports with FRONTEND_PORT / BACKEND_PORT if they are taken.
 services:
   backend:
     build: ./backend
     environment:
-      CORS_ORIGINS: http://localhost:8080
-      FRONTEND_URL: http://localhost:8080/
+      CORS_ORIGINS: http://localhost:${FRONTEND_PORT:-3000}
+      FRONTEND_URL: http://localhost:${FRONTEND_PORT:-3000}/
       LOG_LEVEL: INFO
     volumes:
       - elexon-cache:/app/.cache   # keep downloaded Elexon data across restarts
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
       interval: 15s
@@ -22,7 +23,7 @@ services:
     environment:
       BACKEND_URL: http://backend:8000
     ports:
-      - "8080:80"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       backend:
         condition: service_healthy
