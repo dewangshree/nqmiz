@@ -6,7 +6,7 @@ A web app for a UK electricity utility's day-ahead procurement team. It shows **
 |---|---|
 | **Live app** | https://wind-forecast-analytics-psi.vercel.app |
 | **API** | https://wind-forecast-api-s6ra.onrender.com (health: [/api/health](https://wind-forecast-api-s6ra.onrender.com/api/health), docs: [/docs](https://wind-forecast-api-s6ra.onrender.com/docs)) |
-| **Source** | https://github.com/dewangshree/wind-forecast-analytics |
+| **Source** | https://github.com/dewangshree/nqmiz |
 
 > The API runs on Render's free plan, which sleeps after ~15 minutes idle. The first request after that can take 30–60 s.
 
