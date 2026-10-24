@@ -124,6 +124,11 @@ docker compose up --build
 - UI: http://localhost:8080. nginx serves the built app and proxies `/api` to the backend container.
 - API: http://localhost:8000/api/health
 
+**What has been verified:**
+- **Backend image:** `backend/Dockerfile` is what Render builds and runs in production, and the deployed API passes its health check.
+- **Frontend image, build stage only:** `npm ci` + `npm run build` from a clean checkout succeeds and produces a bundle that calls same-origin `/api`.
+- **Not yet verified locally:** the nginx serving stage and the full `docker compose` stack. The local Docker VM could not start because the development machine ran out of disk space.
+
 ## Tests and checks
 
 ```bash
