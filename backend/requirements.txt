@@ -1,0 +1,5 @@
+# Runtime dependencies (used by the Docker image)
+fastapi==0.128.8
+uvicorn[standard]==0.39.0
+httpx==0.28.1
+pydantic==2.13.5

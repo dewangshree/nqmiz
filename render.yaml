@@ -1,0 +1,19 @@
+# Render Blueprint for the FastAPI backend (Docker runtime, free plan).
+services:
+  - type: web
+    name: wind-forecast-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: CORS_ORIGINS
+        sync: false            # set to the Vercel production URL
+      - key: CORS_ORIGIN_REGEX
+        value: ^https://.*\.vercel\.app$
+      - key: FRONTEND_URL
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO

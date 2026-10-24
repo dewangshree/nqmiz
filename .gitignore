@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/.venv/
+backend/.cache/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+*.log
+
+# Secrets and local env files (examples are committed)
+.env
+.env.*
+!.env.example
+
+# Tooling
+.vercel/
+.DS_Store
+.idea/
+.vscode/*
