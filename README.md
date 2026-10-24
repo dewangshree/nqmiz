@@ -100,14 +100,18 @@ render.yaml          Render blueprint for the API
 
 Requirements: Python 3.9+ and Node 18+.
 
+Terminal 1, backend (http://localhost:8000):
+
 ```bash
-# Backend: http://localhost:8000
 cd backend
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/uvicorn app.main:app --reload --port 8000
+```
 
-# Frontend: http://localhost:5173 (proxies /api to :8000)
+Terminal 2, frontend (http://localhost:5173; proxies `/api` to :8000):
+
+```bash
 cd frontend
 npm install
 npm run dev
@@ -117,8 +121,10 @@ The first API request downloads about 2 MB from Elexon (around 2 s) and caches i
 
 ## Run with Docker
 
+Requires Docker with Compose v2 (on a Mac, Docker Desktop). From the repository root:
+
 ```bash
-docker compose up --build
+docker compose up --build      # stop with: docker compose down
 ```
 
 - UI: http://localhost:3000. nginx serves the built app and proxies `/api` to the backend container.
@@ -136,12 +142,15 @@ docker compose up --build
 ## Tests and checks
 
 ```bash
-cd backend && .venv/bin/python -m pytest -q                       # offline, deterministic
-RUN_LIVE_TESTS=1 .venv/bin/python -m pytest -q tests/test_live_elexon.py   # hits the real Elexon API
-cd frontend && npm run build && npm run lint                      # type-check + production build + lint
+cd backend
+.venv/bin/python -m pytest -q                                             # 58 offline, deterministic tests
+RUN_LIVE_TESTS=1 .venv/bin/python -m pytest -q tests/test_live_elexon.py  # 2 tests against the real Elexon API
+
+cd ../frontend
+npm run build && npm run lint                                             # type-check + production build + lint
 ```
 
-The tests cover cutoff and time-zone boundaries (including clock-change days), selection of the latest pre-cutoff forecast, exclusion of later forecasts, duplicates, missing values, metric formulas, empty data, malformed API responses, retry behaviour, input validation, error responses, CORS and the stale-cache fallback.
+The offline tests never call Elexon; they use deterministic synthetic fixtures. They cover cutoff and time-zone boundaries (including clock-change days), selection of the latest pre-cutoff forecast, exclusion of later forecasts, duplicates, missing values, metric formulas, empty data, malformed API responses, retry behaviour, input validation, error responses, CORS and the stale-cache fallback.
 
 ## Configuration
 
@@ -160,8 +169,19 @@ Frontend: `VITE_API_BASE_URL`, the API origin baked in at build time. Leave it e
 
 ## Deployment
 
-- **Frontend → Vercel.** Project root `frontend/`; `vercel.json` rewrites client-side routes to `index.html`. Environment variable: `VITE_API_BASE_URL`.
-- **API → Render.** Docker runtime, free plan, defined in `render.yaml`. Health check `/api/health`. Environment variables: `CORS_ORIGINS` (the Vercel URL) and `FRONTEND_URL`.
+Both services redeploy automatically on every push to `main`.
+
+- **Frontend → Vercel.**
+  - The Vercel project is connected to this GitHub repository, with Root Directory set to `frontend`.
+  - `vercel.json` sets the Vite build and rewrites client-side routes to `index.html`.
+  - Environment variable: `VITE_API_BASE_URL=https://wind-forecast-api-s6ra.onrender.com`.
+  - Vercel reports each build as a status check on the commit.
+- **API → Render.**
+  - Docker runtime on the free plan, defined in `render.yaml` and built from `backend/Dockerfile`.
+  - Health check: `/api/health`.
+  - Environment variables:
+    - `CORS_ORIGINS` and `FRONTEND_URL`: the Vercel URL.
+    - `CORS_ORIGIN_REGEX`: allows Vercel preview URLs.
 
 ## Known limitations
 
